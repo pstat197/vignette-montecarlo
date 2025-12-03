@@ -1,7 +1,46 @@
 ---
-title: "Dummy Text here"
-author: 'Authors here'
+title: "PSTAT 197 Vignette Fall 2025"
+author: 'Phillip, Aakash, Aashish, Soome'
 date: today
+format: revealjs
+revealjs:
+  theme: simple
+  slide-number: true
+  transition: slide
 ---
 
-### Text here
+## Monte Carlo Simulation: What is it?
+
+Monte Carlo simulation is a computational technique that uses **repeated random sampling** to approximate unknown quantities. Instead of relying on closed-form analytical solutions, which may not exist or may be extremely complicated, Monte Carlo methods approximate expectations, integrals, probabilities, and distributions by simulating a large number of random draws and summarizing the results. The core idea is simple: *if you cannot compute something exactly, simulate it many times and approximate it.*
+
+## Why Use Simulations: {.smaller}
+
+Monte Carlo methods are widely used because:
+
+-   Many statistical quantities (expectations, variances, probabilities) have no simple closed-form expressions.
+
+-   Modern models (e.g., high-dimensional, nonlinear, or stochastic systems) are analytically intractable.
+
+-   Simulation-based estimates converge to true values as the number of samples increases (by the Law of Large Numbers).
+
+-   Monte Carlo methods provide natural tools for quantifying **uncertainty**, constructing confidence intervals, and evaluating sampling variability.
+
+-   They are flexible and can be applied to almost any distribution or model, even when the underlying mathematics is complex.
+
+In data science and applied statistics, Monte Carlo simulation provides a practical and powerful way to approximate results that traditional methods cannot handle easily.
+
+## **Work Flow: Random Input → Sampling → Evaluate → Average**
+
+A typical Monte Carlo simulation follows a simple flow:
+
+1.  **Random Input:** Draw samples from a known distribution (e.g., normal, uniform).
+
+2.  **Sampling:** Generate many independent random draws.
+
+3.  **Evaluate Function:** Apply a function or rule to each sample (e.g., indicator for an event, transformation).
+
+4.  **Average Output:** Compute the average of all values, which approximates the true expectation or probability of interest.
+
+## Graphical Intuition:
+
+![](MC Workflow.jpg)
