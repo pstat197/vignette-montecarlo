@@ -1,6 +1,6 @@
 ---
 title: "PSTAT 197 Vignette Fall 2025"
-author: 'Phillip, Aakash, Aashish, Soome'
+author: "Phillip, Aakash, Aashish, Soome"
 date: today
 format: revealjs
 revealjs:
@@ -44,3 +44,101 @@ A typical Monte Carlo simulation follows a simple flow:
 ## Graphical Intuition:
 
 ![](MC Workflow.jpg)
+
+## Example 1: Estimating π Using Monte Carlo Simulation
+---
+
+### Context
+
+Monte Carlo simulation can estimate mathematical constants that cannot be computed easily using simple geometry or closed-form calculus.  
+Estimating π is one of the most classic Monte Carlo demonstrations because:
+
+- It is visual and intuitive  
+- It shows how repeated random sampling converges  
+- It relies only on uniform random points  
+- It illustrates the core idea: **approximate by simulating many random samples**
+
+This method relies on the geometric relationship between a circle and its enclosing square.
+
+---
+
+### Setup (Geometry & Probability)
+
+We consider:
+
+- A square \([-1,1] \times [-1,1]\), area = 4  
+- A circle of radius 1, area = \(\pi\)  
+
+A uniformly drawn point from the square satisfies:
+
+\[
+P(\text{inside circle}) = \frac{\pi}{4}
+\]
+
+Thus the Monte Carlo estimator of π is:
+
+\[
+\hat{\pi} = 4 \cdot \frac{\#\{\text{points inside circle}\}}{n}.
+\]
+
+---
+
+### Setup (Simulation Algorithm)
+
+Simulation procedure:
+
+1. Generate \(n\) random points \((x_i, y_i)\) uniformly on the square  
+2. Check if each point satisfies \(x_i^2 + y_i^2 \le 1\)  
+3. Count the number of points inside the circle  
+4. Estimate π via  
+   \[
+   4 \cdot (\text{inside} / n)
+   \]
+
+This algorithm illustrates the Monte Carlo workflow:  
+*Random input → Evaluate → Aggregate.*
+
+---
+
+### Visual Walk-Through
+
+Scatterplot of sampled points  
+(blue = inside circle, red = outside):
+
+```{r}
+knitr::include_graphics("img/pi-scatter.png")
+```
+
+---
+
+### Second Visual
+Convergence of the Monte Carlo estimate of π
+(The estimate stabilizes as n increases):
+
+```{r}
+knitr::include_graphics("img/pi-convergence.png")
+```
+
+---
+
+### Analysis
+
+- Early estimates of π fluctuate a lot due to randomness.  
+- As the sample size \(n\) grows, the estimates stabilize around the true value.  
+- This behavior illustrates the Law of Large Numbers:
+  \[
+  \hat{\pi}_n \rightarrow \pi \quad \text{as } n \rightarrow \infty.
+  \]
+
+**Interpretation:**  
+Each individual point is noisy, but the *average* reveals the true quantity. This is exactly how Monte Carlo methods approximate probabilities, expectations, and integrals. The same principle underlies more advanced algorithms such as MCMC and Gibbs sampling.
+
+---
+
+### Summary
+
+Monte Carlo estimation of π shows how randomness can be used to approximate mathematical quantities. By repeatedly sampling points and averaging outcomes, the estimate converges to \(\pi\).
+
+This illustrates the essential Monte Carlo workflow:
+
+**simulate → evaluate → average → converge.**
