@@ -142,3 +142,140 @@ Monte Carlo estimation of π shows how randomness can be used to approximate mat
 This illustrates the essential Monte Carlo workflow:
 
 **simulate → evaluate → average → converge.**
+
+---
+
+### Example 2: Gibbs Sampling (Markov Chain Monte Carlo (MCMC) Method)
+
+---
+
+### Context
+
+Gibbs Sampling is a practical application of a type Monte Carlo Simulation. It is used to find the joint density distribution when directly sampling is difficult. 
+
+---
+
+### Setup 
+
+Consider the following situation:
+Suppose we have a directed graph of four 2-bit vertices, $\vec{G} = \{V, \vec{E}\}$ Where $V = {a, b, c, d}$ and $\vec{E} = {(\vec{ab},\vec{ac} ,\vec{bd}, \vec{cd})}$.
+
+```{r}
+knitr::include_graphics("img/simple_graph.png")
+```
+
+Additionally, each vertex can be in one of 2 states: +1 or -1 state. 
+
+
+---
+
+### Setup 
+
+We are interested in the probability each vertex being in a any state, and we know the probability of a vertex being in any state given the states of its parent vertices:
+
+$\mathbb{P}(+d | +b, +c) = 0.3$, 
+
+$\mathbb{P}(+d | +b, -c) = 0.1$, 
+
+$\mathbb{P}(+d | -b, +c) = 0.2$, 
+
+$\mathbb{P}(+d | -b, -c) = 0.9$, 
+
+$\mathbb{P}(+a) = 0.8$, 
+
+$\mathbb{P}(+b | +a) = 0.8$, 
+
+$\mathbb{P}(+b | -a) = 0.5$, 
+
+$\mathbb{P}(+c | +a) = 0.7$, 
+
+$\mathbb{P}(+c | -a) = 0.1$
+
+With this information, we can use gibbs sampling to estimate the probabilities of each vertex being in each state.
+
+---
+
+## Visual Walk-Through of Gibbs Sampling
+
+In **one round** of Gibbs sampling:
+
+1. Select one vertex \(x\) to resample.  
+2. Observe the states of all other vertices.  
+3. Sample \(x\) based on its **conditional probability** given the current states of other vertices.
+
+--- 
+
+##  Visual Walk-Through of Gibbs Sampling
+
+Current vertex states: `+a, -b, +c, +d`  
+
+- Suppose we pick vertex `c`.  
+
+- The conditional probability is: $\mathbb{P}(+c \mid +a) = 0.7$
+
+- If the random number generator chooses `-c`, we update the vertices to `+a, -b, -c, +d`.  
+
+Once all vertices are sampled once, we complete **one round**, which produces **one instance** of vertex states.
+
+---
+
+##  Visual Walk-Through of Gibbs Sampling
+
+- Kick off this MCMC process by initializing `a, b, c, d` to any state.
+
+- Next, run a Gibbs sampling round (explained on prev slide) on this state.
+
+- Repeat that process **N times** (We Pick N), each time storing our results:
+```{r}
+knitr::include_graphics("img/gibbs_sample.png")
+```
+
+- After sampling, to estimate the probability of each vertex being +1:
+
+$\mathbb{P}(+x) = \frac{\text{# of instances with } +x}{N}$
+
+This allows us to estimate **probabilities** using only conditional distributions.
+
+```{r}
+knitr::include_graphics("img/gibbs_result.png")
+```
+---
+
+### Analysis
+
+- By Law of Large Numbers, our distribution will converge to true population as N approaches infinity. However, realistically we don't have time for infinity trials. 
+
+- Remember that to start off Gibbs Sampling, we choose a random state configuration for the vertices to begin with. If we do not run a large number of trials, this random state and subsequent instances could hurt our estimate. To account for this, we can remove the results from first few iterations, called the "burn in period", when the simulation did not yet have time to adjust.
+
+---
+
+### Analysis
+
+- Consider if we had to find the probabilities of each vertex for a much more complex graph with more vertices. Gibbs sampling makes it feasible to get a reasonable estimate reasonable limited knowledge and computational power using randomness.
+
+---
+
+### Real World Application: Ising Model
+
+```{r}
+knitr::include_graphics("img/ising_model.png")
+```
+
+
+Ising model is a simple model in statistical physics for studying how particles or atoms “align” with each other.
+
+In an Ising Model, we have a lattice of particles, each with either an up (+1) spin or down (-1) spin. Particles tend to align with their neighbors.
+
+
+---
+
+### Real World Application: Ising Model
+
+```{r}
+knitr::include_graphics("img/ising_model.png")
+```
+
+
+As the lattice size increases, the number of possible configurations grow exponentially, making direct sampling from the distribution impossible.
+
+Conditioning on the configuration of neighbors, Gibbs sampling can help us find the optimal configuration for all particles when given information about a particle's neighbors. 
