@@ -43,7 +43,10 @@ A typical Monte Carlo simulation follows a simple flow:
 
 ## Graphical Intuition:
 
-![](MC Workflow.jpg)
+```{r}
+knitr::include_graphics("img/fig-MC-Workflow.jpg")
+```
+
 
 ## Example 1: Estimating π Using Monte Carlo Simulation
 ---
@@ -106,7 +109,7 @@ Scatterplot of sampled points
 (blue = inside circle, red = outside):
 
 ```{r}
-knitr::include_graphics("img/pi-scatter.png")
+knitr::include_graphics("img/fig-pi-scatter.png")
 ```
 
 ---
@@ -116,7 +119,7 @@ Convergence of the Monte Carlo estimate of π
 (The estimate stabilizes as n increases):
 
 ```{r}
-knitr::include_graphics("img/pi-convergence.png")
+knitr::include_graphics("img/fig-pi-convergence.png")
 ```
 
 ---
@@ -161,7 +164,7 @@ Consider the following situation:
 Suppose we have a directed graph of four 2-bit vertices, $\vec{G} = \{V, \vec{E}\}$ Where $V = {a, b, c, d}$ and $\vec{E} = {(\vec{ab},\vec{ac} ,\vec{bd}, \vec{cd})}$.
 
 ```{r}
-knitr::include_graphics("img/simple_graph.png")
+knitr::include_graphics("img/fig-simple-graph.png")
 ```
 
 Additionally, each vertex can be in one of 2 states: +1 or -1 state. 
@@ -227,7 +230,7 @@ Once all vertices are sampled once, we complete **one round**, which produces **
 
 - Repeat that process **N times** (We Pick N), each time storing our results:
 ```{r}
-knitr::include_graphics("img/gibbs_sample.png")
+knitr::include_graphics("img/gibbs-sample.png")
 ```
 
 - After sampling, to estimate the probability of each vertex being +1:
@@ -237,7 +240,7 @@ $\mathbb{P}(+x) = \frac{\text{# of instances with } +x}{N}$
 This allows us to estimate **probabilities** using only conditional distributions.
 
 ```{r}
-knitr::include_graphics("img/gibbs_result.png")
+knitr::include_graphics("img/gibbs-result.png")
 ```
 ---
 
@@ -258,7 +261,7 @@ knitr::include_graphics("img/gibbs_result.png")
 ### Real World Application: Ising Model
 
 ```{r}
-knitr::include_graphics("img/ising_model.png")
+knitr::include_graphics("img/fig-ising-model.png")
 ```
 
 
@@ -272,7 +275,7 @@ In an Ising Model, we have a lattice of particles, each with either an up (+1) s
 ### Real World Application: Ising Model
 
 ```{r}
-knitr::include_graphics("img/ising_model.png")
+knitr::include_graphics("img/fig-ising-model.png")
 ```
 
 
