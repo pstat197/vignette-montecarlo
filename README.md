@@ -23,7 +23,7 @@ Through visualizations and step-by-step walkthroughs, we explore practical consi
 The vignette follows the essential Monte Carlo workflow—simulate, evaluate, average, converge—providing both conceptual understanding and hands-on R implementation skills applicable to problems in statistics, Bayesian inference, physics, machine learning, and scientific computing.
 
 *Repository Contents*
-'''
+```
   vignette-montecarlo/
   ├── data/
   │   ├── dummy.txt
@@ -49,7 +49,7 @@ The vignette follows the essential Monte Carlo workflow—simulate, evaluate, av
   ├── vignette-montecarlo.Rproj
   ├── vignette.html
   └── vignette.qmd
-'''
+```
 Key Files
 
 - **`data/pi-sample.csv`**: Sample dataset used for π estimation demonstrations and analysis.
