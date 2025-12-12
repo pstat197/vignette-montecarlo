@@ -1,284 +1,219 @@
 ---
-title: "PSTAT 197 Vignette Fall 2025"
-author: "Phillip, Aakash, Aashish, Soome"
+title: "Monte Carlo Simulation Vignette"
+author: "Phillip Gurevich, Aakash Sriram, Aashish Krishnan, Soome (Katie) Pyo"
 date: today
-format: revealjs
-revealjs:
-  theme: simple
-  slide-number: true
-  transition: slide
+format:
+  html:
+    theme: cosmo
+    toc: False
+    code-fold: true
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
 ---
 
-## Monte Carlo Simulation: What is it?
+# Introduction
 
-Monte Carlo simulation is a computational technique that uses **repeated random sampling** to approximate unknown quantities. Instead of relying on closed-form analytical solutions, which may not exist or may be extremely complicated, Monte Carlo methods approximate expectations, integrals, probabilities, and distributions by simulating a large number of random draws and summarizing the results. The core idea is simple: *if you cannot compute something exactly, simulate it many times and approximate it.*
-
-## Why Use Simulations: {.smaller}
+Monte Carlo simulation is a computational technique that uses **repeated random sampling** to approximate unknown quantities. Instead of relying on closed-form analytical solutions, Monte Carlo methods approximate expectations, integrals, probabilities, and distributions by simulating a large number of random draws and summarizing the results. 
 
 Monte Carlo methods are widely used because:
 
--   Many statistical quantities (expectations, variances, probabilities) have no simple closed-form expressions.
+- many statistical quantities (expectations, variances, probabilities) have no simple closed-form expressions  
+- modern models (e.g., high-dimensional, nonlinear, or stochastic systems) are analytically intractable  
+- simulation-based estimates converge to true values as the number of samples increases (by the Law of Large Numbers)  
+- Monte Carlo methods naturally quantify **uncertainty** and sampling variability  
 
--   Modern models (e.g., high-dimensional, nonlinear, or stochastic systems) are analytically intractable.
+This vignette demonstrates two core Monte Carlo ideas:
 
--   Simulation-based estimates converge to true values as the number of samples increases (by the Law of Large Numbers).
+1. **Estimating pi with uniform random sampling**, and  
+2. **Gibbs sampling for estimating distributions in a graphical model**.
 
--   Monte Carlo methods provide natural tools for quantifying **uncertainty**, constructing confidence intervals, and evaluating sampling variability.
+Throughout, we highlight the basic Monte Carlo workflow:
 
--   They are flexible and can be applied to almost any distribution or model, even when the underlying mathematics is complex.
-
-In data science and applied statistics, Monte Carlo simulation provides a practical and powerful way to approximate results that traditional methods cannot handle easily.
-
-## **Work Flow: Random Input → Sampling → Evaluate → Average**
-
-A typical Monte Carlo simulation follows a simple flow:
-
-1.  **Random Input:** Draw samples from a known distribution (e.g., normal, uniform).
-
-2.  **Sampling:** Generate many independent random draws.
-
-3.  **Evaluate Function:** Apply a function or rule to each sample (e.g., indicator for an event, transformation).
-
-4.  **Average Output:** Compute the average of all values, which approximates the true expectation or probability of interest.
-
-## Graphical Intuition:
-
-```{r}
-knitr::include_graphics("img/fig-MC-Workflow.jpg")
-```
+**simulate → evaluate → average → converge**.
 
 
-## Example 1: Estimating π Using Monte Carlo Simulation
----
+# Monte Carlo Workflow
 
-### Context
+A typical Monte Carlo simulation follows four steps:
 
-Monte Carlo simulation can estimate mathematical constants that cannot be computed easily using simple geometry or closed-form calculus.  
-Estimating π is one of the most classic Monte Carlo demonstrations because:
+1. **Random Input** — draw samples from a known distribution (e.g., normal, uniform).  
+2. **Sampling** — generate many independent random draws.  
+3. **Evaluate Function** — apply a function or rule to each sample (indicator, transformation, payoff, etc.).  
+4. **Average Output** — compute an average to approximate the true expectation or probability of interest.  
 
-- It is visual and intuitive  
-- It shows how repeated random sampling converges  
-- It relies only on uniform random points  
-- It illustrates the core idea: **approximate by simulating many random samples**
+![Monte Carlo workflow diagram](img/fig-MC-Workflow.jpg)
 
-This method relies on the geometric relationship between a circle and its enclosing square.
 
----
+# Estimating pi Using Monte Carlo Simulation
 
-### Setup (Geometry & Probability)
+## Geometric Setup
 
-We consider:
+We consider points drawn uniformly from the square \([-1,1]^2\) (area = 4).  
+A point lies inside the unit circle if
 
-- A square \([-1,1] \times [-1,1]\), area = 4  
-- A circle of radius 1, area = \(\pi\)  
+$$
+x^2 + y^2 \le 1.
+$$
 
-A uniformly drawn point from the square satisfies:
+Because the circle has area $\pi$, we have
 
-\[
-P(\text{inside circle}) = \frac{\pi}{4}
-\]
+$$
+P(\text{inside circle}) = \frac{\pi}{4}.
+$$
 
-Thus the Monte Carlo estimator of π is:
+For $n$ simulated points, a Monte Carlo estimator of $\pi$ is
 
-\[
-\hat{\pi} = 4 \cdot \frac{\#\{\text{points inside circle}\}}{n}.
-\]
+$$
+\hat{\pi} = 4 \cdot \frac{\text{\# points inside circle}}{n}.
+$$
 
----
+As $n$ increases, $\hat{\pi}$ should converge toward the true value of $\pi$.
 
-### Setup (Simulation Algorithm)
+## Simulation Code
 
-Simulation procedure:
-
-1. Generate \(n\) random points \((x_i, y_i)\) uniformly on the square  
-2. Check if each point satisfies \(x_i^2 + y_i^2 \le 1\)  
-3. Count the number of points inside the circle  
-4. Estimate π via  
-   \[
-   4 \cdot (\text{inside} / n)
-   \]
-
-This algorithm illustrates the Monte Carlo workflow:  
-*Random input → Evaluate → Aggregate.*
-
----
-
-### Visual Walk-Through
-
-Scatterplot of sampled points  
-(blue = inside circle, red = outside):
+Below is a simple R function to estimate pi using Monte Carlo simulation.
 
 ```{r}
-knitr::include_graphics("img/fig-pi-scatter.png")
+set.seed(197)  # for reproducibility
+
+estimate_pi <- function(n) {
+  # Draw n points uniformly from the square [-1, 1] x [-1, 1]
+  x <- runif(n, -1, 1)
+  y <- runif(n, -1, 1)
+  
+  # Check whether each point falls inside the unit circle
+  inside <- (x^2 + y^2) <= 1
+  
+  # Monte Carlo estimate of pi
+  4 * mean(inside)
+}
+
+# Try a few sample sizes
+estimate_pi(100)
+estimate_pi(1000)
+estimate_pi(100000)
 ```
+## Visual: Sampled Points
 
----
+The following figure shows randomly sampled points, colored by whether they fall inside the circle (blue) or outside (red).
 
-### Second Visual
-Convergence of the Monte Carlo estimate of π
-(The estimate stabilizes as n increases):
+![Monte Carlo scatterplot for $\pi$ estimation](img/fig-pi-scatter.png)
 
-```{r}
-knitr::include_graphics("img/fig-pi-convergence.png")
-```
+This picture illustrates the geometry of the method: the fraction of points inside the circle approaches $\pi/4$.
 
----
+## Visual: Convergence of $\hat{\pi}$
 
-### Analysis
+![Convergence plot for $\pi$ estimation](img/fig-pi-convergence.png)
 
-- Early estimates of π fluctuate a lot due to randomness.  
-- As the sample size \(n\) grows, the estimates stabilize around the true value.  
-- This behavior illustrates the Law of Large Numbers:
-  \[
-  \hat{\pi}_n \rightarrow \pi \quad \text{as } n \rightarrow \infty.
-  \]
+Early estimates fluctuate heavily due to randomness, but as the number of points grows, the estimates stabilize around the true value of $\pi$. This behavior is a direct consequence of the **Law of Large Numbers**:
 
-**Interpretation:**  
-Each individual point is noisy, but the *average* reveals the true quantity. This is exactly how Monte Carlo methods approximate probabilities, expectations, and integrals. The same principle underlies more advanced algorithms such as MCMC and Gibbs sampling.
+$$
+\hat{\pi}_n \rightarrow \pi \quad \text{as } n \rightarrow \infty.
+$$
 
----
+## Interpretation
 
-### Summary
+Each individual point is noisy and uninformative on its own. However, the **average behavior** of many points reveals the underlying quantity we care about. This is the key idea behind Monte Carlo methods: randomness, when aggregated correctly, uncovers structure.
 
-Monte Carlo estimation of π shows how randomness can be used to approximate mathematical quantities. By repeatedly sampling points and averaging outcomes, the estimate converges to \(\pi\).
+The same simulate–evaluate–average–converge workflow generalizes to many other problems, including Bayesian inference, physical systems, and complex probabilistic models.
 
-This illustrates the essential Monte Carlo workflow:
 
-**simulate → evaluate → average → converge.**
+# Gibbs Sampling (Markov Chain Monte Carlo)
 
----
+## What Is Gibbs Sampling?
 
-### Example 2: Gibbs Sampling (Markov Chain Monte Carlo (MCMC) Method)
+Gibbs sampling is a type of **Markov Chain Monte Carlo (MCMC)** method. It is used when:
 
----
+- we want to sample from a joint distribution $$(p(x_1, \dots, x_d)$$, but  
+- direct sampling is difficult or impossible, while  
+- the conditional distributions $$(p(x_i \mid x_{-i}))$$ are known or easy to sample from.
 
-### Context
+Gibbs sampling constructs a Markov chain whose stationary distribution is the target joint distribution. By simulating this chain and collecting samples, we can approximate probabilities and expectations.
 
-Gibbs Sampling is a practical application of a type Monte Carlo Simulation. It is used to find the joint density distribution when directly sampling is difficult. 
+## Graph Setup
 
----
+Consider a directed graph with four binary vertices \(a, b, c, d\).  
+Each vertex can take values $$(\pm 1) $$, and edges encode parent–child relationships.
 
-### Setup 
+![Simple directed graph example](img/fig-simple-graph.png)
 
-Consider the following situation:
-Suppose we have a directed graph of four 2-bit vertices, $\vec{G} = \{V, \vec{E}\}$ Where $V = {a, b, c, d}$ and $\vec{E} = {(\vec{ab},\vec{ac} ,\vec{bd}, \vec{cd})}$.
+We assume we know probabilities such as
 
-```{r}
-knitr::include_graphics("img/fig-simple-graph.png")
-```
+- \(P(+d \mid +b, +c) = 0.3\)
+- \(P(+d \mid +b, -c) = 0.1\)
+- \(P(+d \mid -b, +c) = 0.2\)
+- \(P(+d \mid -b, -c) = 0.9\)
 
-Additionally, each vertex can be in one of 2 states: +1 or -1 state. 
+and similarly for \(a, b, c\).
 
+These conditional probabilities define a joint distribution over the four nodes.
 
----
+## One Gibbs Sampling Step
 
-### Setup 
+A single Gibbs update proceeds as follows:
 
-We are interested in the probability each vertex being in a any state, and we know the probability of a vertex being in any state given the states of its parent vertices:
+1. Choose a vertex (say \(c\)).  
+2. Condition on the current states of all the other vertices.  
+3. Sample a new state for \(c\) from its conditional distribution, e.g.  
+   \(P(+c \mid +a) = 0.7\).  
+4. Replace the old value of \(c\) with the newly sampled one.
 
-$\mathbb{P}(+d | +b, +c) = 0.3$, 
+Repeating this process for each vertex in turn gives **one full Gibbs sweep** over the graph.
 
-$\mathbb{P}(+d | +b, -c) = 0.1$, 
+After many sweeps, the sequence of states behaves like samples from the joint distribution.
 
-$\mathbb{P}(+d | -b, +c) = 0.2$, 
+## Estimating Probabilities from Gibbs Samples
 
-$\mathbb{P}(+d | -b, -c) = 0.9$, 
+Once we have a long run of Gibbs samples, we can estimate quantities like
 
-$\mathbb{P}(+a) = 0.8$, 
+$$
+P(+x) = \frac{\#\{\text{samples with } x = +1\}}{N},
+$$
 
-$\mathbb{P}(+b | +a) = 0.8$, 
+where \(N\) is the number of (post–burn-in) samples.
 
-$\mathbb{P}(+b | -a) = 0.5$, 
+By the **Law of Large Numbers**, these empirical frequencies converge to the true probabilities as \(N \rightarrow \infty\).
+## Practical Issues: Burn-In and Convergence
 
-$\mathbb{P}(+c | +a) = 0.7$, 
+The Markov chain is usually initialized at an arbitrary starting state.  
+Early samples can be heavily influenced by this starting point.
 
-$\mathbb{P}(+c | -a) = 0.1$
+To reduce this bias, we discard the first \(B\) iterations as a **burn-in period**.
 
-With this information, we can use gibbs sampling to estimate the probabilities of each vertex being in each state.
+Even after burn-in, samples are correlated in time, so assessing convergence and effective sample size is a key practical aspect of MCMC.
 
----
+Gibbs sampling shines when the state space is large and structured (e.g., networks, grids, spatial models) and when conditional distributions are simple even if the joint is not.
 
-## Visual Walk-Through of Gibbs Sampling
+# Real-World Application: The Ising Model
 
-In **one round** of Gibbs sampling:
+![Ising model example](img/fig-ising-model.png)
 
-1. Select one vertex \(x\) to resample.  
-2. Observe the states of all other vertices.  
-3. Sample \(x\) based on its **conditional probability** given the current states of other vertices.
+The Ising model is a simple model from statistical physics for studying how particles or atoms “align” with their neighbors. We have a lattice of particles, each with a spin of either \(+1\) (up) or \(-1\) (down). The energy of the system depends on how many neighboring spins agree or disagree.
 
---- 
+As the lattice size increases, the number of possible spin configurations grows **exponentially**, making direct sampling from the distribution impossible.
 
-##  Visual Walk-Through of Gibbs Sampling
+Gibbs sampling provides a feasible way to explore typical configurations of the lattice:
 
-Current vertex states: `+a, -b, +c, +d`  
+- condition on the current configuration of neighbors  
+- resample the spin of a single site according to its conditional probability  
+- sweep through all sites repeatedly  
 
-- Suppose we pick vertex `c`.  
+Over many iterations, the Gibbs sampler can approximate the equilibrium behavior of the system under different temperature or interaction settings.
 
-- The conditional probability is: $\mathbb{P}(+c \mid +a) = 0.7$
+# Conclusion
 
-- If the random number generator chooses `-c`, we update the vertices to `+a, -b, -c, +d`.  
+Monte Carlo methods provide powerful tools for approximating expectations and distributions when analytic solutions are unavailable. In this vignette we:
 
-Once all vertices are sampled once, we complete **one round**, which produces **one instance** of vertex states.
+- used Monte Carlo simulation to estimate \(\pi\) via random points in a square  
+- illustrated how estimates converge as the number of samples grows  
+- introduced Gibbs sampling as an MCMC method for sampling from complex joint distributions  
+- connected Gibbs sampling to real-world systems like the Ising model  
 
----
+The common pattern is:
 
-##  Visual Walk-Through of Gibbs Sampling
+**simulate random inputs → evaluate a function → average → assess convergence.**
 
-- Kick off this MCMC process by initializing `a, b, c, d` to any state.
-
-- Next, run a Gibbs sampling round (explained on prev slide) on this state.
-
-- Repeat that process **N times** (We Pick N), each time storing our results:
-```{r}
-knitr::include_graphics("img/gibbs-sample.png")
-```
-
-- After sampling, to estimate the probability of each vertex being +1:
-
-$\mathbb{P}(+x) = \frac{\text{# of instances with } +x}{N}$
-
-This allows us to estimate **probabilities** using only conditional distributions.
-
-```{r}
-knitr::include_graphics("img/gibbs-result.png")
-```
----
-
-### Analysis
-
-- By Law of Large Numbers, our distribution will converge to true population as N approaches infinity. However, realistically we don't have time for infinity trials. 
-
-- Remember that to start off Gibbs Sampling, we choose a random state configuration for the vertices to begin with. If we do not run a large number of trials, this random state and subsequent instances could hurt our estimate. To account for this, we can remove the results from first few iterations, called the "burn in period", when the simulation did not yet have time to adjust.
-
----
-
-### Analysis
-
-- Consider if we had to find the probabilities of each vertex for a much more complex graph with more vertices. Gibbs sampling makes it feasible to get a reasonable estimate reasonable limited knowledge and computational power using randomness.
-
----
-
-### Real World Application: Ising Model
-
-```{r}
-knitr::include_graphics("img/fig-ising-model.png")
-```
-
-
-Ising model is a simple model in statistical physics for studying how particles or atoms “align” with each other.
-
-In an Ising Model, we have a lattice of particles, each with either an up (+1) spin or down (-1) spin. Particles tend to align with their neighbors.
-
-
----
-
-### Real World Application: Ising Model
-
-```{r}
-knitr::include_graphics("img/fig-ising-model.png")
-```
-
-
-As the lattice size increases, the number of possible configurations grow exponentially, making direct sampling from the distribution impossible.
-
-Conditioning on the configuration of neighbors, Gibbs sampling can help us find the optimal configuration for all particles when given information about a particle's neighbors. 
+This workflow appears across statistics, Bayesian inference, physics, machine learning, and many other fields.
