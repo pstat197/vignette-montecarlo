@@ -5,9 +5,14 @@ date: today
 format:
   html:
     theme: cosmo
-    toc: False
+    toc: false
     code-fold: true
     number-sections: true
+  pdf:
+    toc: false
+    number-sections: true
+    fig-pos: "H"      
+    geometry: margin=1in
 execute:
   echo: true
   warning: false
@@ -44,7 +49,7 @@ A typical Monte Carlo simulation follows four steps:
 3. **Evaluate Function** — apply a function or rule to each sample (indicator, transformation, payoff, etc.).  
 4. **Average Output** — compute an average to approximate the true expectation or probability of interest.  
 
-![Monte Carlo workflow diagram](img/fig-MC-Workflow.jpg)
+![Monte Carlo workflow diagram](img/fig-MC-Workflow.jpg){fig-pos=H}
 
 
 # Estimating pi Using Monte Carlo Simulation
@@ -100,13 +105,13 @@ estimate_pi(100000)
 
 The following figure shows randomly sampled points, colored by whether they fall inside the circle (blue) or outside (red).
 
-![Monte Carlo scatterplot for $\pi$ estimation](img/fig-pi-scatter.png)
+![Monte Carlo scatterplot for $\pi$ estimation](img/fig-pi-scatter.png){fig-pos=H}
 
 This picture illustrates the geometry of the method: the fraction of points inside the circle approaches $\pi/4$.
 
 ## Visual: Convergence of $\hat{\pi}$
 
-![Convergence plot for $\pi$ estimation](img/fig-pi-convergence.png)
+![Convergence plot for $\pi$ estimation](img/fig-pi-convergence.png){fig-pos=H}
 
 Early estimates fluctuate heavily due to randomness, but as the number of points grows, the estimates stabilize around the true value of $\pi$. This behavior is a direct consequence of the **Law of Large Numbers**:
 
@@ -138,7 +143,7 @@ Gibbs sampling constructs a Markov chain whose stationary distribution is the ta
 Consider a directed graph with four binary vertices \(a, b, c, d\).  
 Each vertex can take values $$(\pm 1) $$, and edges encode parent–child relationships.
 
-![Simple directed graph example](img/fig-simple-graph.png)
+![Simple directed graph example](img/fig-simple-graph.png){fig-pos=H}
 
 We assume we know probabilities such as
 
@@ -189,7 +194,7 @@ Gibbs sampling shines when the state space is large and structured (e.g., networ
 
 # Real-World Application: The Ising Model
 
-![Ising model example](img/fig-ising-model.png)
+![Ising model example](img/fig-ising-model.png){fig-pos=H}
 
 The Ising model is a simple model from statistical physics for studying how particles or atoms “align” with their neighbors. We have a lattice of particles, each with a spin of either \(+1\) (up) or \(-1\) (down). The energy of the system depends on how many neighboring spins agree or disagree.
 
